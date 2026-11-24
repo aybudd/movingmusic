@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovingMusic</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #171717;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .player {
+            width: 100%;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        input {
+            accent-color: #1db954;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress {
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .volume {
+            width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="player">
+        <div class="title">MovingMusic</div>
+
+        <audio id="audio" src="music.wav"></audio>
+
+        <div class="controls">
+            <button id="play">Play</button>
+            <input id="progress" class="progress"
+                type="range" min="0" max="100" value="0">
+        </div>
+
+        <div class="controls">
+            <span id="time">0:00 / 0:00</span>
+            <span>Volume</span>
+            <input id="volume" class="volume"
+                type="range" min="0" max="1"
+                step="0.01" value="0.5">
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById("audio");
+        const play = document.getElementById("play");
+        const progress = document.getElementById("progress");
+        const volume = document.getElementById("volume");
+        const time = document.getElementById("time");
+
+        function formatTime(seconds) {
+            if (!Number.isFinite(seconds)) return "0:00";
+
+            const minutes = Math.floor(seconds / 60);
+            const remaining = Math.floor(seconds % 60);
+
+            return `${minutes}:${String(remaining).padStart(2, "0")}`;
+        }
+
+        play.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener("play", () => {
+            play.textContent = "Pause";
+        });
+
+        audio.addEventListener("pause", () => {
+            play.textContent = "Play";
+        });
+
+        audio.addEventListener("timeupdate", () => {
+            progress.value = audio.duration
+                ? (audio.currentTime / audio.duration) * 100
+                : 0;
+
+            time.textContent =
+                `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        });
+
+        progress.addEventListener("input", () => {
+            if (audio.duration) {
+                audio.currentTime =
+                    (progress.value / 100) * audio.duration;
+            }
+        });
+
+        volume.addEventListener("input", () => {
+            audio.volume = Number(volume.value);
+        });
+
+        audio.volume = 0.5;
+    </script>
+</body>
+</html>
